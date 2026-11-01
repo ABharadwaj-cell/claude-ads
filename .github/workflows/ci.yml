@@ -39,6 +39,9 @@ jobs:
           bash -n install.sh && echo "OK: install.sh"
           bash -n uninstall.sh && echo "OK: uninstall.sh"
 
+      - name: Run URL validation regression tests
+        run: python3 -m unittest discover -s tests -p "test_*.py" -v
+
       - name: Install dependencies
         run: pip install -r requirements.txt
 

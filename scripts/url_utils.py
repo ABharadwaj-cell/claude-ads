@@ -47,8 +47,22 @@ def validate_url(url: str) -> str:
     hostname = parsed.hostname
     if not hostname:
         raise ValueError("URL has no hostname.")
+    # Credentials in URLs are unnecessary for public landing-page audits and
+    # can accidentally leak through logs, redirects, or error reporting.
+    if parsed.username is not None or parsed.password is not None:
+        raise ValueError("URL must not contain embedded credentials.")
+    # Accessing .port validates its syntax/range; port zero is not a usable
+    # destination for a landing-page HTTP(S) request.
+    try:
+        port = parsed.port
+    except ValueError as exc:
+        raise ValueError("URL contains an invalid port.") from exc
+    if port == 0:
+        raise ValueError("URL port must be between 1 and 65535.")
     try:
         resolved = socket.getaddrinfo(hostname, None, socket.AF_UNSPEC, socket.SOCK_STREAM)
+        if not resolved:
+            raise ValueError("URL hostname did not resolve to an IP address.")
         for _, _, _, _, addr in resolved:
             ip = ipaddress.ip_address(addr[0])
             for net in _BLOCKED_NETS:
