@@ -23,21 +23,26 @@ jobs:
           python-version: "3.12"
 
       - name: Check Python syntax
+        shell: bash
         run: |
           find . -name "*.py" -not -path "./.git/*" -not -path "./.github-audit/*" | while read -r f; do
-            python3 -m py_compile "$f" && echo "OK: $f"
+            python3 -m py_compile "$f"
+            echo "OK: $f"
           done
 
       - name: Validate JSON files
         run: |
           for f in .claude-plugin/plugin.json; do
-            python3 -m json.tool "$f" > /dev/null && echo "OK: $f"
+            python3 -m json.tool "$f" > /dev/null
+            echo "OK: $f"
           done
 
       - name: Check shell script syntax
         run: |
-          bash -n install.sh && echo "OK: install.sh"
-          bash -n uninstall.sh && echo "OK: uninstall.sh"
+          bash -n install.sh
+          echo "OK: install.sh"
+          bash -n uninstall.sh
+          echo "OK: uninstall.sh"
 
       - name: Install dependencies
         run: pip install -r requirements.txt
